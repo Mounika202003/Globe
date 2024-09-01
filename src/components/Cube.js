@@ -3,6 +3,7 @@ import * as THREE from "three";
 
 const Cube = () => {
   const mountRef = useRef(null);
+  const spinningRef = useRef(false);
 
   useEffect(() => {
     const scene = new THREE.Scene();
@@ -110,17 +111,37 @@ const Cube = () => {
       cube.rotation.y = mouse.x * Math.PI;
     };
 
-    document.addEventListener("mousemove", onDocumentMouseMove);
+    const onDocumentTouchStart = () => {
+      spinningRef.current = true;
+    };
+
+    const onDocumentTouchEnd = () => {
+      spinningRef.current = false;
+    };
 
     const animate = function () {
       requestAnimationFrame(animate);
+      if (spinningRef.current) {
+        globe.rotation.x += 0.05;
+        globe.rotation.y += 0.05;
+      }
       renderer.render(scene, camera);
     };
+
+    document.addEventListener("mousemove", onDocumentMouseMove);
+    document.addEventListener("mousedown", onDocumentTouchStart);
+    document.addEventListener("mouseup", onDocumentTouchEnd);
+    document.addEventListener("touchstart", onDocumentTouchStart);
+    document.addEventListener("touchend", onDocumentTouchEnd);
 
     animate();
 
     return () => {
       document.removeEventListener("mousemove", onDocumentMouseMove);
+      document.removeEventListener("mousedown", onDocumentTouchStart);
+      document.removeEventListener("mouseup", onDocumentTouchEnd);
+      document.removeEventListener("touchstart", onDocumentTouchStart);
+      document.removeEventListener("touchend", onDocumentTouchEnd);
       mountRef.current.removeChild(renderer.domElement);
     };
   }, []);
