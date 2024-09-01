@@ -91,26 +91,29 @@ const Cube = () => {
 
     camera.position.z = 7;
 
-    const onDocumentMouseMove = (event) => {
-      const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-      const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
 
-      cube.rotation.x = mouseY * Math.PI;
-      cube.rotation.y = mouseX * Math.PI;
-      globe.rotation.x = mouseY * Math.PI;
-      globe.rotation.y = mouseX * Math.PI;
+    const onDocumentMouseMove = (event) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObject(globe);
+
+      if (intersects.length > 0) {
+        globe.rotation.x += 0.05;
+        globe.rotation.y += 0.05;
+      }
+
+      cube.rotation.x = mouse.y * Math.PI;
+      cube.rotation.y = mouse.x * Math.PI;
     };
 
     document.addEventListener("mousemove", onDocumentMouseMove);
 
     const animate = function () {
       requestAnimationFrame(animate);
-
-      cube.rotation.x += 0.005;
-      cube.rotation.y += 0.005;
-      globe.rotation.x += 0.008;
-      globe.rotation.y += 0.008;
-
       renderer.render(scene, camera);
     };
 
